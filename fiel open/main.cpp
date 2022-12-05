@@ -5,152 +5,203 @@
 #include <cstdlib>
 #include <iomanip>
 #include <random>
+#include <windows.h>
 
 using namespace std;
 
-string player1;
-string player2;
-int pos1 = 1;
-int pos2 = 1;
+const int rows = 6;
+const int columns = 13;
+const char X = 'X';
+const char O = 'O';
 
-bool checkWin(int pos1, int pos2) {
-    bool win = false;
-    if (pos1 >= 100 || pos2 >= 100) {
-        win = true;
-    }
-    return win;
+void readInitialGrid(char grid[][columns], ifstream& inFS) {
+    int i;
+    int j;
+    int move;
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < columns; ++j) {
+                inFS >> move;
+                grid[i][j] = move;
+            }
+        }
 }
 
-void printOneMove(string player, int dice, int pos, int newpos, int movenum) {
-    cout << player << setfill(' ') << setw(14);
-    cout << movenum << setfill(' ') << setw(13);
-    cout << pos << setfill(' ') << setw(16);
-    cout << dice << setfill(' ') << setw(13);
-    cout << newpos << endl;
+void initializeGrid(char grid[][columns]) {
+    grid[1][3] = ' ';
+    grid[1][7] = ' ';
+    grid[1][11] = ' ';
+    grid[3][3] = ' ';
+    grid[3][7] = ' ';
+    grid[3][11] = ' ';
+    grid[5][3] = ' ';
+    grid[5][7] = ' ';
+    grid[5][11] = ' ';
 }
 
-int rollDice() {
-    int dice;
-    dice = (rand() % 8) + 1;
-    return dice;
+void displayGrid(char grid[][columns]) {
+    int i;
+    int j;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+            cout << grid[i][j];
+        }
+        cout << endl;
+    }
 }
 
-int CheckLadders(int pos) {
-    
-    if (pos == 7) {
-        pos = 19;
+bool isWin(char grid[][columns], int moves) {
+    if (grid[1][3] == grid[1][7] && grid[1][7] == grid[1][11] && grid[1][3] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[1][3] << "'s!" << endl;
+        return true;
     }
-    else if (pos == 12) {
-        pos = 27;
+    else if (grid[3][3] == grid[3][7] && grid[3][7] == grid[3][11] && grid[3][3] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[3][3] << "'s!" << endl;
+        return true;
     }
-    else if (pos == 28) {
-        pos = 41;
+    else if (grid[5][3] == grid[5][7] && grid[5][7] == grid[5][11] && grid[5][3] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[5][3] << "'s!" << endl;
+        return true;
     }
-    else if (pos == 39) {
-        pos = 50;
+    else if (grid[1][3] == grid[3][3] && grid[3][3] == grid[5][3] && grid[1][3] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[1][3] << "'s!" << endl;
+        return true;
     }
-    else if (pos == 53) {
-        pos = 62;
+    else if (grid[1][7] == grid[3][7] && grid[3][7] == grid[5][7] && grid[1][7] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[1][7] << "'s!" << endl;
+        return true;
     }
-    else if (pos == 66) {
-        pos = 78;
+    else if (grid[1][11] == grid[3][11] && grid[3][11] == grid[5][11] && grid[1][11] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[1][11] << "'s!" << endl;
+        return true;
     }
-    else if (pos == 75) {
-        pos = 91;
+    else if (grid[1][3] == grid[3][7] && grid[3][7] == grid[5][11] && grid[1][3] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[1][3] << "'s!" << endl;
+        return true;
     }
-    return pos;
-}
-
-int CheckChutes(int pos) {
-    if (pos == 8) {
-        pos = 1;
+    else if (grid[1][11] == grid[3][7] && grid[3][7] == grid [5][3] && grid[1][11] != ' ') {
+        displayGrid(grid);
+        cout << "The winner is " << grid[1][11] << "'s!" << endl;
+        return true;
     }
-    if (pos == 13) {
-        pos = 3;
+    else {
+        return false;
     }
-    if (pos == 24) {
-        pos = 18;
-    }
-    if (pos == 36) {
-        pos = 29;
-    }
-    if (pos == 51) {
-        pos = 37;
-    }
-    if (pos == 64) {
-        pos = 54;
-    }
-    if (pos == 86) {
-        pos = 44;
-    }
-    return pos;
-}
-
-int movePlayer(int pos, int dice) {
-    int newpos;
-    pos += dice;
-    newpos = CheckLadders(pos);
-    newpos = CheckChutes(pos);
-    
-    return newpos;
-    
-}
-
-void printHeader() {
-    cout << "Player     Move Number   Curr Position      Die      New Position" << endl;
-    cout << setfill('*') << setw(65) << endl;
 }
 
 int main() {
-    srand(time(NULL));
-    string player1;
-    string player2;
-    int pos1 = 1;
-    int pos2 = 1;
-    int roll1;
-    int roll2;
-    int movenum = 1;
-    int newpos1;
-    int newpos2;
+    char grid[rows][columns];
+    int move = 0;
+    int pickRow;
+    char pickColumn;
+    int newGame;
     
-    cout << "Player 1: ";
-    cin >> player1;
-    cout << endl;
-    cout << "Player 2: ";
-    cin >> player2;
-    cout << endl;
+    ifstream infile;
     
-    printHeader();
+    infile.open("pgrm7-input.txt");
     
-    while (!checkWin(pos1, pos2)) {
-        roll1 = rollDice();
-        newpos1 = movePlayer(pos1, roll1);
-        printOneMove(player1, roll1, pos1, newpos1, movenum);
-        pos1 = newpos1;
+    if (!infile) {
+        cout << "Error: File cannot open" << endl;
+        return 1;
+    }
+    if (infile.is_open()) {
+        readInitialGrid(grid, infile);
+        initializeGrid(grid);
         
-        if (pos1 >= 100) {
-            break;
+        
+        while (true) {
+            while (!isWin(grid, move)) {
+                int newRow;
+                int newColumn;
+                displayGrid(grid);
+                while (true) {
+                    cout << "Your move. Enter columns [A, B, or C] follwed by rpw [1, 2, or 3]. =>";
+                    cin >> pickColumn >> pickRow;
+                    
+                    if ((pickColumn == 'A' || pickColumn == 'a' || pickColumn == 'B' || pickColumn == 'b' || pickColumn == 'C' || pickColumn == 'c')) {
+                        break;
+                    }
+                    else {
+                        cout << "ERROR: Please select columns [A, B, or C] follwed by row [1, 2, or 3]. =>";
+                        cout << endl;
+                        continue;
+                    }
+                }
+                
+                switch (pickColumn) {
+                    case 'A':
+                    case 'a':
+                        newColumn = 3;
+                        break;
+                    case 'B':
+                    case 'b':
+                        newColumn = 7;
+                        break;
+                    case 'C':
+                    case 'c':
+                        newColumn = 11;
+                        break;
+                    default:
+                        cout << "ERROR: Please select columns [A, B, or C] follwed by row [1, 2, or 3]. =>";
+                        break;
+                }
+                switch(pickRow) {
+                    case 1:
+                        newRow = 1;
+                        break;
+                    case 2:
+                        newRow = 3;
+                        break;
+                    case 3:
+                        newRow = 5;
+                        break;
+                    default:
+                        cout << "ERROR: Please select columns [A, B, or C] follwed by row [1, 2, or 3]. =>";
+                        break;
+                }
+                
+                
+                if (move % 2 == 0) {
+                    if (grid[newRow][newColumn] != X && grid[newRow][newColumn] != O) {
+                        grid[newRow][newColumn] = X;
+                        ++move;
+                    }
+                    else if (grid[newRow][newColumn] != ' ') {
+                        cout << "ERROR: Spot " << pickColumn << pickRow << " is already taken! Try again.";
+                    }
+                }
+                else if (move % 2 != 0) {
+                    if (grid[newRow][newColumn] != X && grid[newRow][newColumn] != O) {
+                        grid[newRow][newColumn] = O;
+                        ++move;
+                    }
+                    else if (grid[newRow][newColumn] != ' ') {
+                        cout << "ERROR: Spot " << pickColumn << pickRow << " is already taken! Try again.";
+                    }
+                }
+                system("cls");
+            }
+            cout << "Play another game? 1-Yes  2-No" ;
+            cin >> newGame;
+            if (newGame != 1) {
+                break;
+            }
+            initializeGrid(grid);
+            move = 0;
+            system("clcs");
         }
-        
-        roll2 = rollDice();
-        newpos2 = movePlayer(pos2, roll2);
-        printOneMove(player2, roll2, pos2, newpos2, movenum);
-        pos2 = newpos2;
-        
-        if (pos2 >= 100) {
-            break;
-        }
-        
-        cout << setfill('-') << setw(65) << endl;
-        
-        ++movenum;
     }
+            
+             
+            
     
-    if (pos1 >= 100) {
-        cout << "The winner is " << player1 << "!" << endl;
-    }
-    if (pos2 >= 100) {
-        cout << "The winner is " << player2 << "!" << endl;
-    }
-    return 0;
+
+return 0;
+        
 }
